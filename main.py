@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.models import DocumentSource
 from pipeline.orchestrator import Orchestrator
+from core.auth import get_api_key
 
 def main():
     print("Initializing Agentic Knowledge Engineering Tool...")
@@ -20,7 +21,7 @@ def main():
     orchestrator = Orchestrator(
         model_name=os.getenv("LLM_MODEL_NAME", "mistral-small-agent"), 
         base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434/v1"),
-        api_key=os.getenv("LLM_API_KEY", "dummy_key"),
+        api_key=get_api_key(),
         hallucination_filter=True,
         ontology_depth=None,
         strict_typing=True,

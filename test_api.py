@@ -4,13 +4,14 @@ load_dotenv()
 import instructor
 from openai import OpenAI
 from pydantic import BaseModel
+from core.auth import get_api_key
 
 class FeatureExtractionResult(BaseModel):
     feature: str
 
 base_url = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
 model = os.getenv("LLM_MODEL_NAME", "mistral-small-agent")
-api_key = os.getenv("LLM_API_KEY", "dummy_key")
+api_key = get_api_key()
 
 print(f"Initializing client with {base_url} and model {model}...")
 client = instructor.from_openai(
