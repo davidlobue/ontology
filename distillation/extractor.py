@@ -15,8 +15,9 @@ class DistillationEngine:
         Forces the LLM to ground entities with Source Quotes and Certainty Scores.
         """
         prompt = f"""
-        You are a highly precise Clinical Behavioral Analyst and Distillation Engine.
-        Analyze the following clinical text and extract all meaningful behaviors, clinical diagnoses, social relationships, interactions, and contextual settings.
+        You are a highly precise Distillation Engine.
+        Analyze the following text and extract all meaningful entities, objects, events, relationships, descriptions, tone, and context.
+        (For example: If the text is a clinical behavioral report, extract specific behaviors, interactions, and settings. If it is corporate, extract transactions).
         For EVERY entity you extract, you MUST:
         1. Find the exact 'Source Quote' in the text that justifies its existence.
         2. Assign a 'Certainty Score' (0.0 to 1.0).
@@ -33,7 +34,7 @@ class DistillationEngine:
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a specialized clinical behavioral ontology extraction agent.",
+                    "content": "You are a specialized ontology extraction agent.",
                 },
                 {
                     "role": "user",

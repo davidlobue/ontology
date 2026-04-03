@@ -17,8 +17,7 @@ class FeatureExtractionResult(BaseModel):
     features: List[AtomicFeature] = Field(default_factory=list, description="Extracted atomic features from the source text.")
 
 class PlatonicCategory(BaseModel):
-    genus: str = Field(description="The broader category (e.g., Behavior, Settings, Clinical Diagnosis).")
-    species: str = Field(description="The specific sub-type (e.g., Repetitive Motion, Autism Spectrum Disorder, Special Education Classroom).")
+    hierarchy: List[str] = Field(description="The natural hierarchical chain of abstraction from the broadest category down to the specific sub-type. (e.g., ['Behavior', 'Social Interaction', 'Direct Contact', 'Avoids Eye Contact'])")
 
 class Differentiator(BaseModel):
     name: str = Field(description="The unique distinguishing trait.")

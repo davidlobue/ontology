@@ -34,7 +34,7 @@ class AdversaryEngine:
             messages=[
                 {
                     "role": "system",
-                    "content": "You are the Adversary. Your job is to generate deceptive clinical texts to break behavioral ontology schemas."
+                    "content": "You are the Adversary. Your job is to generate deceptive texts to break ontology schemas."
                 },
                 {"role": "user", "content": prompt}
             ],

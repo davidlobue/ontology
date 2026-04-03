@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import List, Type, Optional
 from pydantic import BaseModel
 from core.models import DocumentSource, KnowledgeGraph
 from distillation.extractor import DistillationEngine
@@ -13,7 +13,7 @@ class Orchestrator:
         model_name: str = "mistral-small-agent",
         base_url: str = "http://localhost:11434/v1",
         hallucination_filter: bool = True,
-        ontology_depth: int = 3,
+        ontology_depth: Optional[int] = None,
         strict_typing: bool = True
     ):
         self.model_name = model_name
