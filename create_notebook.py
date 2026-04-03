@@ -60,7 +60,8 @@ orchestrator = Orchestrator(
     base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
     hallucination_filter=True,
     ontology_depth=None,
-    strict_typing=True
+    strict_typing=True,
+    verbose=True
 )
 
 try:

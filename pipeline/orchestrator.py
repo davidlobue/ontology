@@ -14,10 +14,12 @@ class Orchestrator:
         base_url: str = "http://localhost:11434/v1",
         hallucination_filter: bool = True,
         ontology_depth: Optional[int] = None,
-        strict_typing: bool = True
+        strict_typing: bool = True,
+        verbose: bool = False
     ):
         self.model_name = model_name
         self.base_url = base_url
+        self.verbose = verbose
         
         # Toggles
         self.hallucination_filter = hallucination_filter
@@ -40,6 +42,10 @@ class Orchestrator:
         all_features = []
         for doc in documents:
             res = self.distillation.extract_features(doc)
+            if self.verbose:
+                print(f"\\n[VERBOSE] Document '{doc.id}' Extracted Features:")
+                print(res.model_dump_json(indent=2))
+            
             
             # Application of the hallucination_filter logic
             # e.g., dual-agent consensus. Here simply filtering out low-certainty features.
@@ -51,6 +57,11 @@ class Orchestrator:
 
         print("[*] Applying Platonic Ontology mapping via clustered batching...")
         ontologies = self.ontologist.build_concept_matrix(all_features, documents, ontology_depth=self.ontology_depth)
+        
+        if self.verbose:
+            print("\\n[VERBOSE] Generated Clustered Ontologies:")
+            for ont in ontologies:
+                print(ont.model_dump_json(indent=2))
         
         print("[*] Constructing shared Knowledge Graph...")
         master_kg = self.ontologist.construct_knowledge_graph(ontologies)
@@ -75,6 +86,9 @@ class Orchestrator:
         # Note: we re-extract to get the exact features of the single document for Receptacle comparison
         features = self.distillation.extract_features(sample_doc)
         info_loss_score = self.auditor.receptacle_check(sample_doc, features)
+        if self.verbose:
+            print(f"\\n[VERBOSE] Information Loss Evaluator Score: {info_loss_score}")
+            
         print(f"[!] Receptacle Check -> Information Loss: {info_loss_score}")
         if info_loss_score > 0.10:
             print("[!] WARNING: High Information Loss detected. Schema may lack necessary extraction paths.")
@@ -82,14 +96,23 @@ class Orchestrator:
         # 2. Adversarial Text Generation
         print("[*] Generating Adversarial Decoy Text...")
         adversarial_result = self.adversary.generate_adversarial_text(sample_doc)
+        if self.verbose:
+            print("\\n[VERBOSE] Adversarial Engine Output:")
+            print(adversarial_result.model_dump_json(indent=2))
         
         # 3. Instruction-Based Mapping of Adversarial Text using Synthesized Schema
         print("[*] Applying Instruction-Based Mapping on Adversarial Text...")
         mapped_adversarial_output = self.auditor.instruction_based_mapping(adversarial_result.synthetic_text, blueprint_schema)
+        if self.verbose:
+            print("\\n[VERBOSE] Dynamic Schema Mapping on Decoy Text:")
+            print(mapped_adversarial_output.model_dump_json(indent=2))
         
         # 4. Factual Audit
         print("[*] Running Factual Cold Review...")
         audit_result = self.auditor.factual_audit(mapped_adversarial_output, adversarial_result.synthetic_text)
+        if self.verbose:
+            print("\\n[VERBOSE] Factual Audit Grades:")
+            print(audit_result.model_dump_json(indent=2))
         
         print("\n====== PIPELINE RESULTS ======")
         print(f"Precision Score: {audit_result.precision_score}")
