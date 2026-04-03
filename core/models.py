@@ -21,7 +21,7 @@ class PlatonicCategory(BaseModel):
 
 class Differentiator(BaseModel):
     name: str = Field(description="The unique distinguishing trait.")
-    value: Any = Field(description="The specific value(s) of this differentiator (can be a singular value or list of examples/evidence) that makes it Unique across similar entities.")
+    value: List[str] = Field(description="The specific value(s) of this differentiator (single string or multiple examples) that makes it Unique across similar entities.")
 
 class EntityOntology(BaseModel):
     feature_name: str
