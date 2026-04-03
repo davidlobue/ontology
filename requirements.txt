@@ -3,3 +3,4 @@ openai==2.30.0
 pydantic==2.12.5
 networkx==3.4.2
 nbformat==5.10.4
+python-dotenv==1.2.2

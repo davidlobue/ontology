@@ -50,6 +50,9 @@ We point the Orchestrator to the local Ollama instance (acting as an OpenAI comp
 
 code_orchestrator = """\
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 orchestrator = Orchestrator(
     model_name=os.getenv("OLLAMA_MODEL", "mistral-small-agent"), 
     base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
