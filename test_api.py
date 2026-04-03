@@ -8,12 +8,13 @@ from pydantic import BaseModel
 class FeatureExtractionResult(BaseModel):
     feature: str
 
-base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
-model = os.getenv("OLLAMA_MODEL", "mistral-small-agent")
+base_url = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
+model = os.getenv("LLM_MODEL_NAME", "mistral-small-agent")
+api_key = os.getenv("LLM_API_KEY", "dummy_key")
 
 print(f"Initializing client with {base_url} and model {model}...")
 client = instructor.from_openai(
-    OpenAI(base_url=base_url, api_key="ollama"),
+    OpenAI(base_url=base_url, api_key=api_key),
     mode=instructor.Mode.JSON_SCHEMA
 )
 

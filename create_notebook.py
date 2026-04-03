@@ -4,7 +4,7 @@ nb = nbf.v4.new_notebook()
 
 text_intro = """\
 # Testing the Agentic Knowledge Engineering Tool
-This notebook sets up the `Orchestrator` to test the Distillation, Designer, and Validation loops with `instructor` and `openai` against local Ollama models.
+This notebook sets up the `Orchestrator` to test the Distillation, Designer, and Validation loops with `instructor` and `openai` against your configured LLM (e.g. Vertex AI or local Ollama).
 """
 
 code_imports = """\
@@ -47,7 +47,7 @@ docs = [doc1, doc2]
 
 text_orchestrator = """\
 ## Initialize Orchestrator and Run Pipeline
-We point the Orchestrator to the local Ollama instance (acting as an OpenAI compatible endpoint `http://localhost:11434/v1`). Note: ensure `ollama serve` is running and `mistral-small-agent` is pulled."
+We point the Orchestrator to the configured LLM endpoint using generic environment variables (`LLM_BASE_URL`). Note: ensure your endpoint is running or correct credentials are provided."
 """
 
 code_orchestrator = """\
@@ -56,8 +56,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 orchestrator = Orchestrator(
-    model_name=os.getenv("OLLAMA_MODEL", "mistral-small-agent"), 
-    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
+    model_name=os.getenv("LLM_MODEL_NAME", "mistral-small-agent"), 
+    base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434/v1"),
+    api_key=os.getenv("LLM_API_KEY", "dummy_key"),
     hallucination_filter=True,
     ontology_depth=None,
     strict_typing=True,
@@ -68,7 +69,7 @@ try:
     final_schema = orchestrator.run_pipeline(docs)
 except Exception as e:
     print(f"Pipeline Error: {e}")
-    print("Is your Ollama instance running locally, or did you export OLLAMA_BASE_URL?")
+    print("Is your LLM connection running locally, or did you export LLM_BASE_URL?")
     final_schema = None
 """
 

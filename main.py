@@ -18,8 +18,9 @@ def main():
     # The user requested 'local hosted llms'.
     
     orchestrator = Orchestrator(
-        model_name=os.getenv("OLLAMA_MODEL", "mistral-small-agent"), 
-        base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
+        model_name=os.getenv("LLM_MODEL_NAME", "mistral-small-agent"), 
+        base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434/v1"),
+        api_key=os.getenv("LLM_API_KEY", "dummy_key"),
         hallucination_filter=True,
         ontology_depth=None,
         strict_typing=True,
@@ -53,7 +54,7 @@ def main():
     except Exception as e:
         print("\n[ERROR] Pipeline execution failed.")
         print(f"Details: {e}")
-        print("Note: Ensure Ollama is running (`ollama serve`) and the model 'mistral-small-agent' is pulled (`ollama pull mistral-small-agent`).")
+        print("Note: Ensure your LLM connection is running and variables (LLM_BASE_URL, LLM_MODEL_NAME) are correctly set.")
 
 if __name__ == "__main__":
     main()

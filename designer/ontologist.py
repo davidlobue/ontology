@@ -5,10 +5,11 @@ from core.models import AtomicFeature, EntityOntology, EntityOntologyList, Knowl
 import networkx as nx
 
 class OntologistEngine:
-    def __init__(self, model_name: str = "mistral-small-agent", base_url: str = "http://localhost:11434/v1"):
+    def __init__(self, model_name: str = "mistral-small-agent", base_url: str = "http://localhost:11434/v1", api_key: str = "dummy_key"):
         self.model_name = model_name
         self.base_url = base_url
-        self.client = instructor.from_openai(OpenAI(base_url=self.base_url, api_key="ollama"), mode=instructor.Mode.JSON_SCHEMA)
+        self.api_key = api_key
+        self.client = instructor.from_openai(OpenAI(base_url=self.base_url, api_key=self.api_key), mode=instructor.Mode.JSON_SCHEMA)
         
     def _batch_apply_platonic_ladder(self, features: List[AtomicFeature], text_summary: str, ontology_depth: int) -> List[EntityOntology]:
         features_json = "\\n\\n".join([

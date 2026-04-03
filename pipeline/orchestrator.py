@@ -12,6 +12,7 @@ class Orchestrator:
         self,
         model_name: str = "mistral-small-agent",
         base_url: str = "http://localhost:11434/v1",
+        api_key: str = "dummy_key",
         hallucination_filter: bool = True,
         ontology_depth: Optional[int] = None,
         strict_typing: bool = True,
@@ -19,6 +20,7 @@ class Orchestrator:
     ):
         self.model_name = model_name
         self.base_url = base_url
+        self.api_key = api_key
         self.verbose = verbose
         
         # Toggles
@@ -27,11 +29,11 @@ class Orchestrator:
         self.strict_typing = strict_typing
         
         # Engines
-        self.distillation = DistillationEngine(model_name, base_url)
-        self.ontologist = OntologistEngine(model_name, base_url)
+        self.distillation = DistillationEngine(model_name, base_url, api_key)
+        self.ontologist = OntologistEngine(model_name, base_url, api_key)
         self.schema_builder = SchemaBuilder(strict_typing=strict_typing)
-        self.adversary = AdversaryEngine(model_name, base_url)
-        self.auditor = AuditorEngine(model_name, base_url)
+        self.adversary = AdversaryEngine(model_name, base_url, api_key)
+        self.auditor = AuditorEngine(model_name, base_url, api_key)
 
     def consolidation_loop(self, documents: List[DocumentSource]) -> KnowledgeGraph:
         """
