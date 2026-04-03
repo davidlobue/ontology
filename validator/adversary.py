@@ -2,6 +2,7 @@ import instructor
 from openai import OpenAI
 from pydantic import BaseModel, Field
 from core.models import DocumentSource
+from core.config import LLMConfig
 
 class SyntheticTextResult(BaseModel):
     synthetic_text: str = Field(description="The generated adversarial text.")
@@ -13,11 +14,9 @@ class AdversaryEngine:
     of the original but includes "Near-Neighbor" decoys.
     (e.g., creating a report about 'Toddler Temper Tantrums' to test an 'Autism Spectrum Disorder' schema)
     """
-    def __init__(self, model_name: str = "mistral-small-agent", base_url: str = "http://localhost:11434/v1", api_key: str = "dummy_key"):
-        self.model_name = model_name
-        self.base_url = base_url
-        self.api_key = api_key
-        self.client = instructor.from_openai(OpenAI(base_url=self.base_url, api_key=self.api_key), mode=instructor.Mode.JSON_SCHEMA)
+    def __init__(self):
+        self.model_name = LLMConfig.get_model_name()
+        self.client = LLMConfig.get_client()
 
     def generate_adversarial_text(self, original_document: DocumentSource) -> SyntheticTextResult:
         prompt = f"""

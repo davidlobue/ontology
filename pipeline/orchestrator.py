@@ -10,17 +10,14 @@ from validator.auditor import AuditorEngine
 class Orchestrator:
     def __init__(
         self,
-        model_name: str = "mistral-small-agent",
-        base_url: str = "http://localhost:11434/v1",
-        api_key: str = "dummy_key",
         hallucination_filter: bool = True,
         ontology_depth: Optional[int] = None,
         strict_typing: bool = True,
         verbose: bool = False
     ):
-        self.model_name = model_name
-        self.base_url = base_url
-        self.api_key = api_key
+        from core.config import LLMConfig
+        self.model_name = LLMConfig.get_model_name()
+        self.base_url = LLMConfig.get_base_url()
         self.verbose = verbose
         
         # Toggles
@@ -31,11 +28,11 @@ class Orchestrator:
         print(f"[*] Orchestrator initialized. Model: {self.model_name} | Base URL: {self.base_url}")
         
         # Engines
-        self.distillation = DistillationEngine(model_name, base_url, api_key)
-        self.ontologist = OntologistEngine(model_name, base_url, api_key)
+        self.distillation = DistillationEngine()
+        self.ontologist = OntologistEngine()
         self.schema_builder = SchemaBuilder(strict_typing=strict_typing)
-        self.adversary = AdversaryEngine(model_name, base_url, api_key)
-        self.auditor = AuditorEngine(model_name, base_url, api_key)
+        self.adversary = AdversaryEngine()
+        self.auditor = AuditorEngine()
 
     def consolidation_loop(self, documents: List[DocumentSource]) -> KnowledgeGraph:
         """

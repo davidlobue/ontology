@@ -3,6 +3,7 @@ from openai import OpenAI
 from pydantic import BaseModel, Field
 from typing import Type, Any
 from core.models import DocumentSource, FeatureExtractionResult
+from core.config import LLMConfig
 
 class FactualAuditResult(BaseModel):
     is_accurate: bool = Field(description="Whether the mapping contains zero false positives.")
@@ -11,11 +12,9 @@ class FactualAuditResult(BaseModel):
     unmapped_information_loss_score: float = Field(description="Information loss (Receptacle Check) from 0.0 to 1.0. Lower is better.")
 
 class AuditorEngine:
-    def __init__(self, model_name: str = "mistral-small-agent", base_url: str = "http://localhost:11434/v1", api_key: str = "dummy_key"):
-        self.model_name = model_name
-        self.base_url = base_url
-        self.api_key = api_key
-        self.client = instructor.from_openai(OpenAI(base_url=self.base_url, api_key=self.api_key), mode=instructor.Mode.JSON_SCHEMA)
+    def __init__(self):
+        self.model_name = LLMConfig.get_model_name()
+        self.client = LLMConfig.get_client()
 
     def receptacle_check(self, original_doc: DocumentSource, features: FeatureExtractionResult) -> float:
         """

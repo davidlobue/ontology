@@ -55,12 +55,9 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-from core.auth import get_api_key
+from pipeline.orchestrator import Orchestrator
 
 orchestrator = Orchestrator(
-    model_name=os.getenv("LLM_MODEL_NAME", "mistral-small-agent"), 
-    base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434/v1"),
-    api_key=get_api_key(),
     hallucination_filter=True,
     ontology_depth=None,
     strict_typing=True,
