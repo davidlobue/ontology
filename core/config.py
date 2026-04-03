@@ -39,7 +39,9 @@ class LLMConfig:
                     
                     endpoint = aiplatform.Endpoint(endpoint_path)
                     if endpoint.dedicated_endpoint_dns:
-                        base_url = f"https://{endpoint.dedicated_endpoint_dns}/v1"
+                        # Preserve the accurate API version path (/v1/ or /v1beta1/) before the project string
+                        api_ver = "v1" if "/v1/" in base_url else "v1beta1"
+                        base_url = f"https://{endpoint.dedicated_endpoint_dns}/{api_ver}/{endpoint_path}"
                 except Exception as e:
                     print(f"[VERTEX AI WARNING] Could not resolve dedicated endpoint DNS: {e}")
                     
