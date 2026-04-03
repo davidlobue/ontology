@@ -29,6 +29,9 @@ class EntityOntology(BaseModel):
     category: PlatonicCategory
     differentiators: List[Differentiator]
 
+class EntityOntologyList(BaseModel):
+    ontologies: List[EntityOntology] = Field(description="The categorized grouped ontologies ensuring MECE properties.")
+
 class KnowledgeGraphNode(BaseModel):
     id: str = Field(description="Unique identifier for the node (usually the form/species).")
     type: str = Field(description="The generic category Type (Genus).")

@@ -49,8 +49,8 @@ class Orchestrator:
             else:
                 all_features.extend(res.features)
 
-        print("[*] Applying Platonic Ontology mapping...")
-        ontologies = self.ontologist.build_concept_matrix(all_features, ontology_depth=self.ontology_depth)
+        print("[*] Applying Platonic Ontology mapping via clustered batching...")
+        ontologies = self.ontologist.build_concept_matrix(all_features, documents, ontology_depth=self.ontology_depth)
         
         print("[*] Constructing shared Knowledge Graph...")
         master_kg = self.ontologist.construct_knowledge_graph(ontologies)

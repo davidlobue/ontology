@@ -1,7 +1,7 @@
 import instructor
 from openai import OpenAI
 from typing import List, Dict, Any
-from core.models import AtomicFeature, EntityOntology, KnowledgeGraph, KnowledgeGraphNode, KnowledgeGraphEdge, Differentiator
+from core.models import AtomicFeature, EntityOntology, EntityOntologyList, KnowledgeGraph, KnowledgeGraphNode, KnowledgeGraphEdge, Differentiator, DocumentSource
 import networkx as nx
 
 class OntologistEngine:
@@ -10,40 +10,47 @@ class OntologistEngine:
         self.base_url = base_url
         self.client = instructor.from_openai(OpenAI(base_url=self.base_url, api_key="ollama"), mode=instructor.Mode.JSON_SCHEMA)
         
-    def _apply_platonic_ladder(self, feature: AtomicFeature, ontology_depth: int) -> EntityOntology:
+    def _batch_apply_platonic_ladder(self, features: List[AtomicFeature], text_summary: str, ontology_depth: int) -> List[EntityOntology]:
+        features_json = "\\n\\n".join([
+            f"Feature Name: {f.name}\\nType: {f.type}\\nDescription: {f.description}" 
+            for f in features
+        ])
+        
         prompt = f"""
-        Reflect on this extracted feature using Plato's Great Chain of Being.
-        Categorize the entity by its abstraction level.
-        Find the Genus (broad category) and Species (specific sub-type).
+        Given these features, extracted from a text that is summarized as:
+        {text_summary}
         
-        Also identify unique "Elements" (Differentiators). How is this unique and differentiable?
-        Identify traits that are Mutually Exclusive and Collectively Exhaustive (MECE).
+        Categorize them into a shared Platonic hierarchy. 
+        Ensure each is distinct (MECE) and assign Genus/Species.
+        Find the Genus (broad category) and Species (specific sub-type) for each feature.
         
-        Feature Name: {feature.name}
-        Type: {feature.type}
-        Description: {feature.description}
+        Also identify unique "Elements" (Differentiators). How is each unique from the others?
         Depth Limit: {ontology_depth}
+        
+        Features to Categorize:
+        {features_json}
         """
 
-        ontology = self.client.chat.completions.create(
+        response = self.client.chat.completions.create(
             model=self.model_name,
             messages=[
-                {"role": "system", "content": "You are a master Ontologist identifying universal templates (Forms) from specific instances."},
+                {"role": "system", "content": "You are a master Ontologist identifying universal templates (Forms) from specific instances in grouped clusters."},
                 {"role": "user", "content": prompt}
             ],
-            response_model=EntityOntology,
-            max_tokens=4000
+            response_model=EntityOntologyList,
+            max_tokens=8000
         )
-        return ontology
+        return response.ontologies
 
-    def build_concept_matrix(self, features: List[AtomicFeature], ontology_depth: int = 3) -> List[EntityOntology]:
+    def build_concept_matrix(self, features: List[AtomicFeature], documents: List[DocumentSource], ontology_depth: int = 3) -> List[EntityOntology]:
         """
-        Processes a list of Atomic Features into standardized Differentiable Concepts.
+        Processes a list of Atomic Features into standardized Differentiable Concepts in a clustered batch.
         """
-        ontologies = []
-        for feat in features:
-            ont = self._apply_platonic_ladder(feat, ontology_depth)
-            ontologies.append(ont)
+        if not features:
+            return []
+            
+        text_summary = "\\n...\\n".join([doc.text_content.strip() for doc in documents])
+        ontologies = self._batch_apply_platonic_ladder(features, text_summary, ontology_depth)
         return ontologies
 
     def construct_knowledge_graph(self, ontologies: List[EntityOntology]) -> KnowledgeGraph:
