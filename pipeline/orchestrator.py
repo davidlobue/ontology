@@ -55,7 +55,7 @@ class Orchestrator:
             else:
                 all_features.extend(res.features)
 
-        print("[*] Applying Platonic Ontology mapping via clustered batching...")
+        print("[*] Applying Ontology mapping via clustered batching...")
         start_time = time.time()
         ontologies = self.ontologist.build_concept_matrix(all_features, documents, ontology_depth=self.ontology_depth)
         print(f"[TIMER] OntologistEngine.build_concept_matrix took: {time.time() - start_time:.2f}s")
@@ -79,10 +79,15 @@ class Orchestrator:
         print("====== I. DISTILLATION & II. DESIGNER ======")
         master_kg = self.consolidation_loop(documents)
         
+        print("\n====== II. DESIGNER & VISUALIZATION ======")
         start_time = time.time()
         blueprint_schema = self.schema_builder.synthesize_schema(master_kg, schema_name="UniversalBlueprint")
         print(f"[TIMER] SchemaBuilder.synthesize_schema took: {time.time() - start_time:.2f}s")
         print(f"[+] Synthesized Schema: {blueprint_schema.__name__}")
+        
+        from designer.visualizer import OntologyVisualizer
+        output_file = OntologyVisualizer.render_html(master_kg, "knowledge_graph.html")
+        print(f"[+] Interactive UI generated at: {output_file}")
         
         # Bypass of prior validation stages over speed optimizations
         print("\n[+] SUCCESS: Produced production-ready Pydantic Schema.")

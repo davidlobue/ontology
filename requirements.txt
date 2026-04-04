@@ -5,3 +5,4 @@ networkx==3.4.2
 nbformat==5.10.4
 python-dotenv==1.2.2
 google-auth==2.35.0
+pyvis==0.3.2
