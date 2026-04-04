@@ -1,8 +1,7 @@
 import instructor
 from openai import OpenAI
 from typing import List, Dict, Any, Optional
-from core.models import AtomicFeature, EntityOntology, EntityOntologyList, KnowledgeGraph, KnowledgeGraphNode, KnowledgeGraphEdge, Differentiator, DocumentSource
-import networkx as nx
+from core.models import AtomicFeature, EntityOntology, EntityOntologyList, Differentiator, DocumentSource
 from core.config import LLMConfig
 from core.prompts import Prompts
 
@@ -48,45 +47,3 @@ class OntologistEngine:
                     ont.category.hierarchy = ont.category.hierarchy[:ontology_depth]
                     
         return ontologies
-
-    def construct_knowledge_graph(self, ontologies: List[EntityOntology]) -> KnowledgeGraph:
-        """
-        Converts the Differentiable Matrices into a generic KnowledgeGraph structure, backed by NetworkX for graph logic if needed, but outputting standard Pydantic.
-        """
-        kg = KnowledgeGraph()
-        nx_graph = nx.DiGraph()
-        added_nodes = set()
-
-        for ont in ontologies:
-            hierarchy = ont.category.hierarchy
-            if not hierarchy:
-                continue
-                
-            leaf_node = hierarchy[-1]
-            parent_node = hierarchy[-2] if len(hierarchy) > 1 else "Root"
-            
-            # Use differentiators as properties
-            properties = {diff.name: diff.value for diff in ont.differentiators}
-            
-            if leaf_node not in added_nodes:
-                node = KnowledgeGraphNode(id=leaf_node, type=parent_node, properties=properties)
-                kg.nodes.append(node)
-                added_nodes.add(leaf_node)
-            
-            for i in range(len(hierarchy) - 1):
-                child = hierarchy[i+1]
-                parent = hierarchy[i]
-                kg.edges.append(KnowledgeGraphEdge(source=child, target=parent, relationship="IS_A"))
-                
-                # Natively cache the abstract parent layer so the renderer never faults
-                if parent not in added_nodes:
-                    grandparent = hierarchy[i-1] if i > 0 else "Root"
-                    kg.nodes.append(KnowledgeGraphNode(id=parent, type=grandparent, properties={}))
-                    added_nodes.add(parent)
-                
-                nx_graph.add_node(child, type=parent, **(properties if i == len(hierarchy)-2 else {}))
-                nx_graph.add_node(parent, type="Categorical_Genus")
-                nx_graph.add_edge(child, parent, relationship="IS_A")
-
-        # Complex reasoning logic could happen here using nx_graph
-        return kg

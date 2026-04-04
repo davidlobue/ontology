@@ -60,3 +60,27 @@ class Prompts:
         {features_json}
         </features_to_categorize>
         """
+
+    # ==========================
+    # GRAPH BUILDER ENGINE (CARTOGRAPHER)
+    # ==========================
+    CARTOGRAPHER_SYSTEM = """
+    You are a specialized Cartographer Agent mapping entity features into a Knowledge Graph.
+    Your mission is to map core entities as explicit nodes, define their relationships via directed edges, and capture all relevant attributes natively onto the node.
+    You must output a structured topology ensuring high fidelity to the source data and structural logic, capturing implicit relationships alongside explicit ones.
+    """
+
+    @staticmethod
+    def get_cartographer_user(features_json: str, ontologies_json: str) -> str:
+        return f"""
+        Given the following extracted atomic features and corresponding hierarchical ontologies, construct the core Knowledge Graph representing the structural relations of these entities.
+        Do not create an overly connected graph just to connect them; ensure the graph maps explicitly to the text reality.
+        
+        <atomic_features>
+        {features_json}
+        </atomic_features>
+        
+        <ontologist_abstractions>
+        {ontologies_json}
+        </ontologist_abstractions>
+        """

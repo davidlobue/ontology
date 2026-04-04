@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from core.models import DocumentSource, KnowledgeGraph
 from distillation.extractor import DistillationEngine
 from designer.ontologist import OntologistEngine
+from designer.graph_builder import GraphBuilderEngine
 from designer.schema_builder import SchemaBuilder
 
 class Orchestrator:
@@ -29,14 +30,15 @@ class Orchestrator:
         # Engines
         self.distillation = DistillationEngine()
         self.ontologist = OntologistEngine()
+        self.graph_builder = GraphBuilderEngine()
         self.schema_builder = SchemaBuilder(strict_typing=strict_typing)
 
-    def consolidation_loop(self, documents: List[DocumentSource]) -> KnowledgeGraph:
+    def run_pipeline(self, documents: List[DocumentSource]) -> Type[BaseModel]:
         """
-        Merge extraction across multiple documents.
-        Identifies shared 'Forms' and discards document-specific noise.
+        The overarching end-to-end scanner.
         """
-        print(f"[*] Starting Consolidation Loop over {len(documents)} documents...")
+        print("====== I. DISTILLATION ======")
+        print(f"[*] Starting extractions across {len(documents)} documents...")
         all_features = []
         for doc in documents:
             start_time = time.time()
@@ -46,15 +48,14 @@ class Orchestrator:
                 print(f"\\n[VERBOSE] Document '{doc.id}' Extracted Features:")
                 print(res.model_dump_json(indent=2))
             
-            
-            # Application of the hallucination_filter logic
-            # e.g., dual-agent consensus. Here simply filtering out low-certainty features.
+            # Hallucination filter
             if self.hallucination_filter:
                 trusted_features = [f for f in res.features if f.certainty_score > 0.75]
                 all_features.extend(trusted_features)
             else:
                 all_features.extend(res.features)
 
+        print("\n====== II. DESIGNER (ONTOLOGIST) ======")
         print("[*] Applying Ontology mapping via clustered batching...")
         start_time = time.time()
         ontologies = self.ontologist.build_concept_matrix(all_features, documents, ontology_depth=self.ontology_depth)
@@ -64,22 +65,14 @@ class Orchestrator:
             print("\\n[VERBOSE] Generated Clustered Ontologies:")
             for ont in ontologies:
                 print(ont.model_dump_json(indent=2))
-        
-        print("[*] Constructing shared Knowledge Graph...")
+                
+        print("\n====== III. GRAPH BUILDER (CARTOGRAPHER) ======")
+        print("[*] Dispatching explicit Node-Edge semantic network construction...")
         start_time = time.time()
-        master_kg = self.ontologist.construct_knowledge_graph(ontologies)
-        print(f"[TIMER] OntologistEngine.construct_knowledge_graph took: {time.time() - start_time:.2f}s")
+        master_kg = self.graph_builder.generate_knowledge_graph(all_features, ontologies)
+        print(f"[TIMER] GraphBuilderEngine.generate_knowledge_graph took: {time.time() - start_time:.2f}s")
         
-        return master_kg
-
-    def run_pipeline(self, documents: List[DocumentSource]) -> Type[BaseModel]:
-        """
-        The overarching end-to-end scanner.
-        """
-        print("====== I. DISTILLATION & II. DESIGNER ======")
-        master_kg = self.consolidation_loop(documents)
-        
-        print("\n====== II. DESIGNER & VISUALIZATION ======")
+        print("\n====== IV. SCHEMA BUILDER & VISUALIZATION ======")
         start_time = time.time()
         blueprint_schema = self.schema_builder.synthesize_schema(master_kg, schema_name="UniversalBlueprint")
         print(f"[TIMER] SchemaBuilder.synthesize_schema took: {time.time() - start_time:.2f}s")
