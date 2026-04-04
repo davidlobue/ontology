@@ -3,6 +3,7 @@ from openai import OpenAI
 from typing import List, Optional
 from core.models import DocumentSource, FeatureExtractionResult
 from core.config import LLMConfig
+from core.prompts import Prompts
 
 class DistillationEngine:
     def __init__(self):
@@ -14,32 +15,16 @@ class DistillationEngine:
         Uses Instructor to extract heavily structured Atomic Features from text.
         Forces the LLM to ground entities with Source Quotes and Certainty Scores.
         """
-        prompt = f"""
-        You are a highly precise Distillation Engine.
-        Analyze the following text and extract all meaningful entities, objects, events, relationships, descriptions, tone, and context.
-        (For example: If the text is a clinical behavioral report, extract specific behaviors, interactions, and settings. If it is corporate, extract transactions).
-        For EVERY entity you extract, you MUST:
-        1. Find the exact 'Source Quote' in the text that justifies its existence.
-        2. Assign a 'Certainty Score' (0.0 to 1.0).
-        3. Differentiate between the 'shadow' (how it appeared in the text) and the 'form' (its general meaning).
-        
-        Focus strictly on minimizing false positives. Do not hallucinate entities not strictly in the text.
-        Please provide a comprehensive but concise response, targeting an output length of under roughly 4000 tokens.
-        
-        Text to analyze:
-        {document.text_content}
-        """
-
         extraction = self.client.chat.completions.create(
             model=self.model_name,
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a specialized ontology extraction agent.",
+                    "content": Prompts.DISTILLATION_SYSTEM,
                 },
                 {
                     "role": "user",
-                    "content": prompt,
+                    "content": Prompts.get_distillation_user(document.text_content),
                 }
             ],
             response_model=FeatureExtractionResult,

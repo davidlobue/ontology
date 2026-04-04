@@ -4,6 +4,7 @@ from typing import List, Dict, Any, Optional
 from core.models import AtomicFeature, EntityOntology, EntityOntologyList, KnowledgeGraph, KnowledgeGraphNode, KnowledgeGraphEdge, Differentiator, DocumentSource
 import networkx as nx
 from core.config import LLMConfig
+from core.prompts import Prompts
 
 class OntologistEngine:
     def __init__(self):
@@ -16,27 +17,11 @@ class OntologistEngine:
             for f in features
         ])
         
-        prompt = f"""
-        Given these features, extracted from a text that is summarized as:
-        {text_summary}
-        
-        Categorize them into a shared Platonic hierarchy. 
-        Ensure each is distinct (MECE).
-        Construct the natural hierarchical chain of abstraction from the broadest category down to the specific sub-type.
-        (For example, if evaluating clinical behavior: ['Behavior', 'Social Interaction', 'Direct Contact', 'Avoids Eye Contact']).
-        
-        Also identify unique "Elements" (Differentiators). How is each unique from the others?
-        Please provide a comprehensive response but target an output length under roughly 8000 tokens to ensure stability.
-        
-        Features to Categorize:
-        {features_json}
-        """
-
         response = self.client.chat.completions.create(
             model=self.model_name,
             messages=[
-                {"role": "system", "content": "You are a master Ontologist identifying universal templates (Forms) from specific instances in grouped clusters."},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content": Prompts.ONTOLOGIST_SYSTEM},
+                {"role": "user", "content": Prompts.get_ontologist_user(text_summary, features_json)}
             ],
             response_model=EntityOntologyList,
             max_tokens=12000
