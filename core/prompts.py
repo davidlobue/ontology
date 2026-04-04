@@ -33,57 +33,7 @@ class Prompts:
         </source_text>
         """
 
-    # ==========================
-    # ONTOLOGIST ENGINE (DESIGNER)
-    # ==========================
-    ONTOLOGIST_SYSTEM = """
-    You are a master Ontologist identifying universal templates (Forms) from specific instances to build high density schemas.
-    
-    Extract the elements into the required schema by following these steps for classification:
-    1. Distill each feature 'representation' into its fundamental form or type using abstraction.
-    2. Ensure each type is distinct (MECE).
-    3. Construct the 'hierarchy' as a natural hierarchical chain of abstraction from the broadest category down to the specific sub-type.
-    4. Identify unique "Elements" (differentiators) detailing how each is unique from the others.
-    """
 
-    @staticmethod
-    def get_ontologist_user(text_summary: str, features_json: str) -> str:
-        return f"""
-        Given these features, extracted from a text that is summarized as:
-        <text_summary>
-        {text_summary}
-        </text_summary>
-        
-        Categorize the following features explicitly using the defined systemic instructions.
-        
-        <features_to_categorize>
-        {features_json}
-        </features_to_categorize>
-        """
-
-    # ==========================
-    # GRAPH BUILDER ENGINE (CARTOGRAPHER)
-    # ==========================
-    CARTOGRAPHER_SYSTEM = """
-    You are a specialized Cartographer Agent mapping entity features into a Knowledge Graph.
-    Your mission is to map core entities as explicit nodes, define their relationships via directed edges, and capture all relevant attributes natively onto the node.
-    You must output a structured topology ensuring high fidelity to the source data and structural logic, capturing implicit relationships alongside explicit ones.
-    """
-
-    @staticmethod
-    def get_cartographer_user(features_json: str, ontologies_json: str) -> str:
-        return f"""
-        Given the following extracted atomic features and corresponding hierarchical ontologies, construct the core Knowledge Graph representing the structural relations of these entities.
-        Do not create an overly connected graph just to connect them; ensure the graph maps explicitly to the text reality.
-        
-        <atomic_features>
-        {features_json}
-        </atomic_features>
-        
-        <ontologist_abstractions>
-        {ontologies_json}
-        </ontologist_abstractions>
-        """
 
     # ==========================
     # DISCOVERY ENGINE (EXPLORER)
