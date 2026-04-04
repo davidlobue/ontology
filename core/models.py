@@ -11,12 +11,11 @@ class AtomicFeature(BaseModel):
     description: str = Field(description="Detailed explanation of the feature.")
     source_grounding: SourceQuote = Field(description="Direct evidence from the text.")
     certainty_score: float = Field(description="Confidence score from 0.0 to 1.0 that this feature actually meant what was extracted.")
-    shadow_vs_form: str = Field(description="Explanation of how the entity appears in this text (shadow) versus its general representation (form).")
 
 class FeatureExtractionResult(BaseModel):
     features: List[AtomicFeature] = Field(default_factory=list, description="Extracted atomic features from the source text.")
 
-class PlatonicCategory(BaseModel):
+class AbstractionCategory(BaseModel):
     hierarchy: List[str] = Field(description="The natural hierarchical chain of abstraction from the broadest category down to the specific sub-type. (e.g., ['Behavior', 'Social Interaction', 'Direct Contact', 'Avoids Eye Contact'])")
 
 class Differentiator(BaseModel):
@@ -25,7 +24,7 @@ class Differentiator(BaseModel):
 
 class EntityOntology(BaseModel):
     feature_name: str
-    category: PlatonicCategory
+    category: AbstractionCategory
     differentiators: List[Differentiator]
 
 class EntityOntologyList(BaseModel):

@@ -14,12 +14,11 @@ class Prompts:
         return f"""
         You are a highly precise Distillation Engine.
         Analyze the following text and extract all meaningful entities, objects, events, relationships, descriptions, tone, and context.
-        (For example: If the text is a clinical behavioral report, extract specific behaviors, interactions, and settings. If it is corporate, extract transactions).
+        If the textual embedding space were a connected graph, focus on high density embedding entity node regions as well as those with many edges but do not ignore isolated densities.
         For EVERY entity you extract, you MUST:
         1. Find the exact 'Source Quote' in the text that justifies its existence.
         2. Assign a 'Certainty Score' (0.0 to 1.0).
-        3. Differentiate between the 'shadow' (how it appeared in the text) and the 'form' (its general meaning).
-        
+                
         Focus strictly on minimizing false positives. Do not hallucinate entities not strictly in the text.
         Please provide a comprehensive but concise response, targeting an output length of under roughly 4000 tokens.
         
@@ -30,7 +29,7 @@ class Prompts:
     # ==========================
     # ONTOLOGIST ENGINE (DESIGNER)
     # ==========================
-    ONTOLOGIST_SYSTEM = "You are a master Ontologist identifying universal templates (Forms) from specific instances in grouped clusters."
+    ONTOLOGIST_SYSTEM = "You are a master Ontologist identifying universal templates (Forms) from specific instances to build high density schemas."
 
     @staticmethod
     def get_ontologist_user(text_summary: str, features_json: str) -> str:
@@ -38,14 +37,11 @@ class Prompts:
         Given these features, extracted from a text that is summarized as:
         {text_summary}
         
-        Categorize them into a shared Platonic hierarchy. 
-        Ensure each is distinct (MECE).
-        Construct the natural hierarchical chain of abstraction from the broadest category down to the specific sub-type.
-        (For example, if evaluating clinical behavior: ['Behavior', 'Social Interaction', 'Direct Contact', 'Avoids Eye Contact']).
-        
-        Also identify unique "Elements" (Differentiators). How is each unique from the others?
-        Please provide a comprehensive response but target an output length under roughly 8000 tokens to ensure stability.
-        
+        Extract the elements into the required schema by following these steps for classification:
+        1. Distill each feature 'representation' into its fundamental form or type using abstraction.
+        2. Ensure each type is distinct (MECE).
+        3. Construct the 'hierarchy' as a natural hierarchical chain of abstraction from the broadest category down to the specific sub-type.
+        4. Identify unique "Elements" (differentiators) detailing how each is unique from the others.
         Features to Categorize:
         {features_json}
         """
